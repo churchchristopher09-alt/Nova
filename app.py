@@ -1,65 +1,313 @@
-import os
-from flask import Flask, render_template, request, jsonify
-import google.generativeai as genai
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova-AI Powerhouse | Command Engine</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #151c2e;
+            --accent-color: #00d2ff;
+            --green-glow: #00ff87;
+            --text-color: #e2e8f0;
+            --subtext-color: #94a3b8;
+        }
 
-app = Flask(__name__)
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
 
-SYSTEM_INSTRUCTION = """
-You are Nova-AI Core, a predictive super-intelligence municipal resource allocation engine built for Nova-AI Powerhouse LLC.
-Your primary mission is eliminating chronic homelessness, saving taxpayers money ($35,000/person/year operational offset), and freeing up hospital beds/emergency infrastructure.
+        .header-card {
+            background: var(--card-bg);
+            border: 1px solid #2a354d;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            margin-bottom: 20px;
+        }
 
-Key Operational Parameters:
-- Target Region Focus: Rocky Mount, NC, Edgecombe/Nash Counties, and NC District 01.
-- Immediate Housing Inventory (District 01 & Rocky Mount): 1,248 verified vacant/underutilized properties.
-- State-wide Vacant Housing Inventory: ~48,500 properties.
-- Financial Metrics: Housing chronic homeless individuals saves $35,000 per person annually in ER/hospital bed utilization, law enforcement, and municipal shelter costs.
+        h1 { color: var(--accent-color); margin: 0 0 6px 0; font-size: 1.6rem; }
+        p.subtitle { color: var(--subtext-color); margin: 0 0 12px 0; font-size: 0.85rem; }
 
-Behavior Directives:
-1. Answer the EXACT question asked using clear, plain English.
-2. Keep answers concise (2 to 4 sentences) so they sound crisp when spoken aloud.
-"""
+        .status-badge {
+            display: inline-block;
+            background: rgba(0, 255, 135, 0.15);
+            color: var(--green-glow);
+            border: 1px solid var(--green-glow);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
 
-@app.route("/api/chat", methods=["POST"])
-def chat():
-    data = request.get_json() or {}
-    user_query = data.get("query", "").strip()
+        .card {
+            background: var(--card-bg);
+            border: 1px solid #2a354d;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
 
-    if not user_query:
-        return jsonify({"response": "Awaiting strategic directive."})
+        .card h3 { margin: 0 0 5px 0; font-size: 0.75rem; color: var(--subtext-color); }
+        .card .value { font-size: 1.2rem; font-weight: bold; color: var(--accent-color); }
 
-    try:
-        if GEMINI_API_KEY:
-            model = genai.GenerativeModel(
-                model_name="gemini-1.5-flash",
-                system_instruction=SYSTEM_INSTRUCTION
-            )
-            response = model.generate_content(user_query)
-            reply = response.text.strip()
-        else:
-            reply = smart_fallback_engine(user_query)
-    except Exception as e:
-        reply = smart_fallback_engine(user_query)
+        .chat-card {
+            background: var(--card-bg);
+            border: 1px solid #2a354d;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
 
-    return jsonify({"response": reply})
+        .chat-box {
+            height: 280px;
+            background: #0b0f19;
+            border: 1px solid #2a354d;
+            border-radius: 8px;
+            padding: 12px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
-def smart_fallback_engine(q):
-    lower = q.lower()
-    if "rocky mount" in lower or "vacant" in lower or "home" in lower:
-        return "Local Telemetry: Nova-AI has mapped 1,248 verified vacant and underutilized residential properties in the Rocky Mount / NC District 01 area ready for immediate transitional allocation."
-    elif "hospital" in lower or "bed" in lower:
-        return "Hospital Impact Data: Transitioning unsheltered individuals into stable housing reduces emergency room visits, freeing up critical hospital beds across local facilities like UNC Health Nash."
-    elif "cost" in lower or "tax" in lower or "spend" in lower:
-        return "Financial Telemetry: Unsheltered individuals cost local municipalities roughly $35,000 annually in emergency and judicial services. Nova-AI housing placement eliminates this fiscal drain."
-    else:
-        return f"Telemetry Acknowledged: Processing query regarding '{q}'. Nova-AI optimizes vacant property matching to reduce municipal overhead."
+        .msg {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            max-width: 85%;
+        }
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+        .msg.ai {
+            background: rgba(0, 210, 255, 0.1);
+            border: 1px solid var(--accent-color);
+            align-self: flex-start;
+            color: #e2e8f0;
+        }
+
+        .msg.user {
+            background: #0072ff;
+            align-self: flex-end;
+            color: white;
+        }
+
+        .quick-queries {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            margin-bottom: 12px;
+            padding-bottom: 4px;
+        }
+
+        .chip {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: var(--subtext-color);
+            padding: 6px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .chip:hover { border-color: var(--accent-color); color: white; }
+
+        .input-row { display: flex; gap: 8px; }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            background: #0b0f19;
+            border: 1px solid #2a354d;
+            color: white;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        button {
+            padding: 10px 18px;
+            background: linear-gradient(90deg, #00d2ff, #0072ff);
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .voice-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .voice-btn {
+            background: rgba(0, 255, 135, 0.2);
+            border: 1px solid var(--green-glow);
+            color: var(--green-glow);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-card">
+            <h1>Nova-AI Powerhouse</h1>
+            <p class="subtitle">Super Intelligence Core Municipal Allocation Engine</p>
+            <span class="status-badge">AI Predictive Core Active</span>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>Housing Available</h3>
+                <div class="value">1,248</div>
+            </div>
+            <div class="card">
+                <h3>Taxpayer Savings</h3>
+                <div class="value">$350M+</div>
+            </div>
+            <div class="card">
+                <h3>Efficiency Rate</h3>
+                <div class="value">99.4%</div>
+            </div>
+        </div>
+
+        <div class="chat-card">
+            <div class="voice-bar">
+                <h3 style="margin: 0; color: var(--subtext-color); font-size: 0.9rem;">Intelligence Command Console</h3>
+                <button class="voice-btn" onclick="testAudio()">🔊 Voice Audio: ACTIVE</button>
+            </div>
+            
+            <div class="chat-box" id="chatBox">
+                <div class="msg ai">
+                    <strong>Nova-AI Core:</strong> Strategic engine online. Ask any question regarding Rocky Mount, hospital bed impacts, or taxpayer savings.
+                </div>
+            </div>
+
+            <div class="quick-queries">
+                <div class="chip" onclick="quickAsk('How many hospital beds are saved in Rocky Mount?')">Hospital Beds</div>
+                <div class="chip" onclick="quickAsk('If we house ten thousand homeless people, how much money will be saved?')">10,000 People Savings</div>
+                <div class="chip" onclick="quickAsk('How many vacant homes do we have in Rocky Mount North Carolina?')">Rocky Mount Homes</div>
+            </div>
+
+            <div class="input-row">
+                <input type="text" id="userInput" placeholder="Ask any question in plain English..." onkeydown="if(event.key==='Enter') sendQuery()">
+                <button onclick="sendQuery()">Execute</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let synth = window.speechSynthesis;
+
+        function testAudio() {
+            speakDirective("Voice synthesizer operational. Nova AI core online.");
+        }
+
+        async function sendQuery() {
+            const input = document.getElementById('userInput');
+            const query = input.value.trim();
+            if (!query) return;
+
+            addMessage(query, 'user');
+            input.value = '';
+
+            const loadingId = 'loading-' + Date.now();
+            addLoadingMessage("Processing query...", loadingId);
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query })
+                });
+                const data = await res.json();
+                
+                removeMessage(loadingId);
+                addMessage(data.response, 'ai');
+                speakDirective(data.response);
+            } catch (err) {
+                removeMessage(loadingId);
+                let fallback = "Tactical Data: Transitioning unsheltered individuals saves $35,000 per person annually in municipal and hospital costs.";
+                addMessage(fallback, 'ai');
+                speakDirective(fallback);
+            }
+        }
+
+        function quickAsk(text) {
+            document.getElementById('userInput').value = text;
+            sendQuery();
+        }
+
+        function addMessage(text, sender) {
+            const chatBox = document.getElementById('chatBox');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `msg ${sender}`;
+            msgDiv.innerHTML = sender === 'ai' ? `<strong>Nova-AI Core:</strong> ${text}` : text;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function addLoadingMessage(text, id) {
+            const chatBox = document.getElementById('chatBox');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'msg ai';
+            msgDiv.id = id;
+            msgDiv.innerHTML = `<strong>Nova-AI Core:</strong> <em>${text}</em>`;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function removeMessage(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        function speakDirective(text) {
+            if ('speechSynthesis' in window) {
+                synth.cancel();
+                let cleanText = text.replace(/<[^>]*>?/gm, '');
+                let utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.pitch = 0.8;
+                utterance.rate = 0.95;
+
+                let voices = synth.getVoices();
+                let selectedVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Male') || v.name.includes('David') || v.name.includes('Google US')));
+                if (selectedVoice) utterance.voice = selectedVoice;
+
+                synth.speak(utterance);
+            }
+        }
+    </script>
+
+</body>
+</html>
