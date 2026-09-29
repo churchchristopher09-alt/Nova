@@ -19,7 +19,7 @@
             color: var(--text-color);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -34,23 +34,22 @@
             background: var(--card-bg);
             border: 1px solid #2a354d;
             border-radius: 12px;
-            padding: 24px;
+            padding: 20px;
             text-align: center;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         h1 {
             color: var(--accent-color);
-            margin: 0 0 8px 0;
-            font-size: 1.8rem;
-            letter-spacing: 0.5px;
+            margin: 0 0 6px 0;
+            font-size: 1.6rem;
         }
 
         p.subtitle {
             color: var(--subtext-color);
-            margin: 0 0 16px 0;
-            font-size: 0.95rem;
+            margin: 0 0 12px 0;
+            font-size: 0.85rem;
         }
 
         .status-badge {
@@ -58,92 +57,129 @@
             background: rgba(0, 255, 135, 0.15);
             color: var(--green-glow);
             border: 1px solid var(--green-glow);
-            padding: 6px 16px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .card {
             background: var(--card-bg);
             border: 1px solid #2a354d;
             border-radius: 10px;
-            padding: 20px;
+            padding: 12px;
+            text-align: center;
         }
 
         .card h3 {
-            margin: 0 0 10px 0;
-            font-size: 1rem;
+            margin: 0 0 5px 0;
+            font-size: 0.75rem;
             color: var(--subtext-color);
         }
 
         .card .value {
-            font-size: 1.8rem;
+            font-size: 1.2rem;
             font-weight: bold;
             color: var(--accent-color);
         }
 
-        .action-card {
+        .chat-card {
             background: var(--card-bg);
             border: 1px solid #2a354d;
             border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 24px;
+            padding: 15px;
+            margin-bottom: 20px;
         }
 
-        .form-group {
-            margin-bottom: 15px;
+        .chat-box {
+            height: 250px;
+            background: #0b0f19;
+            border: 1px solid #2a354d;
+            border-radius: 8px;
+            padding: 12px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--subtext-color);
+        .msg {
+            padding: 10px 14px;
+            border-radius: 8px;
             font-size: 0.9rem;
+            line-height: 1.4;
+            max-width: 85%;
         }
 
-        select, input {
-            width: 100%;
+        .msg.ai {
+            background: rgba(0, 210, 255, 0.1);
+            border: 1px solid var(--accent-color);
+            align-self: flex-start;
+            color: #e2e8f0;
+        }
+
+        .msg.user {
+            background: #0072ff;
+            align-self: flex-end;
+            color: white;
+        }
+
+        .quick-queries {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            margin-bottom: 12px;
+            padding-bottom: 4px;
+        }
+
+        .chip {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: var(--subtext-color);
+            padding: 6px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .chip:hover {
+            border-color: var(--accent-color);
+            color: white;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        input {
+            flex: 1;
             padding: 10px;
             background: #0b0f19;
             border: 1px solid #2a354d;
             color: white;
             border-radius: 6px;
-            box-sizing: border-box;
+            font-size: 0.9rem;
         }
 
         button {
-            width: 100%;
-            padding: 12px;
+            padding: 10px 18px;
             background: linear-gradient(90deg, #00d2ff, #0072ff);
             border: none;
             color: white;
             font-weight: bold;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 1rem;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .results {
-            display: none;
-            background: rgba(0, 210, 255, 0.05);
-            border: 1px solid var(--accent-color);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
         }
     </style>
 </head>
@@ -158,7 +194,7 @@
 
         <div class="grid">
             <div class="card">
-                <h3>Housing Units Available</h3>
+                <h3>Housing Available</h3>
                 <div class="value">1,248</div>
             </div>
             <div class="card">
@@ -166,42 +202,73 @@
                 <div class="value">$350M+</div>
             </div>
             <div class="card">
-                <h3>System Efficiency</h3>
+                <h3>Efficiency Rate</h3>
                 <div class="value">99.4%</div>
             </div>
         </div>
 
-        <div class="action-card">
-            <h3>Municipal Predictive Allocation Query</h3>
-            <div class="form-group">
-                <label for="region">Select Jurisdiction / District</label>
-                <select id="region">
-                    <option value="nc-01">NC District 01 (Rocky Mount / Eastern NC)</option>
-                    <option value="national">National Emergency Response Network</option>
-                </select>
+        <div class="chat-card">
+            <h3 style="margin: 0 0 10px 0; color: var(--subtext-color); font-size: 0.9rem;">Municipal Intelligence Command Console</h3>
+            
+            <div class="chat-box" id="chatBox">
+                <div class="msg ai">
+                    <strong>Nova-AI Core:</strong> Online and connected to municipal data feeds. Ask a query below regarding homeless transitions, vacant property allocations, or taxpayer savings calculations for NC District 01.
+                </div>
             </div>
-            <div class="form-group">
-                <label for="capacity">Target Capacity Transition</label>
-                <input type="number" id="capacity" value="500" placeholder="Enter target units">
-            </div>
-            <button onclick="runAllocation()">Execute Predictive Match</button>
 
-            <div id="results" class="results">
-                <strong>Allocation Optimization Complete:</strong>
-                <p id="result-text" style="margin: 5px 0 0 0; color: var(--subtext-color);"></p>
+            <div class="quick-queries">
+                <div class="chip" onclick="quickAsk('How many vacant houses are identified in NC District 01?')">Vacant Houses in NC-01</div>
+                <div class="chip" onclick="quickAsk('Calculate taxpayer savings for housing 500 individuals.')">Savings for 500 People</div>
+                <div class="chip" onclick="quickAsk('What is the projected economic relief for Rocky Mount?')">Rocky Mount Economic Impact</div>
+            </div>
+
+            <div class="input-row">
+                <input type="text" id="userInput" placeholder="Ask Nova-AI a municipal query..." onkeydown="if(event.key==='Enter') sendQuery()">
+                <button onclick="sendQuery()">Ask</button>
             </div>
         </div>
     </div>
 
     <script>
-        function runAllocation() {
-            const capacity = document.getElementById('capacity').value;
-            const region = document.getElementById('region').options[document.getElementById('region').selectedIndex].text;
-            const resultsDiv = document.getElementById('results');
-            const resultText = document.getElementById('result-text');
+        function sendQuery() {
+            const input = document.getElementById('userInput');
+            const query = input.value.trim();
+            if (!query) return;
 
-            resultText.innerText = `Successfully mapped ${capacity} transition units for ${region}. Cost offset calculated at $${(capacity * 35000).toLocaleString()} annually.`;
-            resultsDiv.style.display = 'block';
+            addMessage(query, 'user');
+            input.value = '';
+
+            setTimeout(() => {
+                let response = generateResponse(query);
+                addMessage(response, 'ai');
+            }, 600);
+        }
+
+        function quickAsk(text) {
+            document.getElementById('userInput').value = text;
+            sendQuery();
+        }
+
+        function addMessage(text, sender) {
+            const chatBox = document.getElementById('chatBox');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `msg ${sender}`;
+            msgDiv.innerHTML = sender === 'ai' ? `<strong>Nova-AI Core:</strong> ${text}` : text;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function generateResponse(q) {
+            q = q.toLowerCase();
+            if (q.includes('vacant') || q.includes('house') || q.includes('properties')) {
+                return "Nova-AI currently identifies 1,248 verified vacant/underutilized residential structures in NC District 01 suitable for rapid transitional allocation.";
+            } else if (q.includes('saving') || q.includes('cost') || q.includes('money') || q.includes('taxpayer')) {
+                return "Housing 10,000 chronically homeless individuals nationally yields over $350 Million per year in taxpayer savings ($35,000 per person offset in medical, municipal, and legal costs).";
+            } else if (q.includes('rocky mount') || q.includes('nc-01') || q.includes('district')) {
+                return "For Rocky Mount and NC District 01, transitioning 250 individuals into vacant housing projects an estimated $8.75 Million in direct annual municipal savings.";
+            } else {
+                return `Analyzing municipal query: "${q}". Nova-AI projects high efficiency matching across current vacant housing inventory, delivering immediate cost reductions to local government budgets.`;
+            }
         }
     </script>
 
