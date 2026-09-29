@@ -1,96 +1,67 @@
 import os
-import sys
-import subprocess
-
-# Auto-install missing packages on startup
-try:
-    import flask
-    import gunicorn
-except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "flask", "gunicorn"])
-
 from flask import Flask, render_template, request, jsonify
+import google.generativeai as genai
 
-app = Flask(__name__, template_folder="templates")
+app = Flask(__name__)
 
-# =====================================================================
-# NOVA-AI POWERHOUSE: CORE CALCULATION ENGINE (CPU OPTIMIZED)
-# =====================================================================
+# Configure Gemini API key from environment variable
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
-COST_PER_ER_VISIT = 1500  # Average emergency room visit cost
-COST_PER_JAIL_DAY = 125   # Average county jail daily bed cost
-ANNUAL_UNHOUSED_COST = 35000  # Total estimated yearly public cost offset per person
+SYSTEM_INSTRUCTION = """
+You are Nova-AI Core, a predictive super-intelligence municipal resource allocation engine built for Nova-AI Powerhouse LLC.
+Your primary mission is eliminating chronic homelessness, saving taxpayers money ($35,000/person/year operational offset), and freeing up hospital beds/emergency infrastructure.
 
-def calculate_municipal_savings(people_housed):
-    total_savings = people_housed * ANNUAL_UNHOUSED_COST
-    er_savings = people_housed * (COST_PER_ER_VISIT * 4)  
-    jail_savings = people_housed * (COST_PER_JAIL_DAY * 60) 
-    
-    return {
-        "people_housed": people_housed,
-        "total_annual_savings": f"${total_savings:,.2f}",
-        "er_cost_reduction": f"${er_savings:,.2f}",
-        "jail_cost_reduction": f"${jail_savings:,.2f}"
-    }
+Key Operational Parameters:
+- Target Region Focus: Rocky Mount, NC, Edgecombe/Nash Counties, and NC District 01.
+- Immediate Housing Inventory (District 01): 1,248 verified vacant/underutilized properties.
+- State-wide Vacant Housing Inventory: ~48,500 properties.
+- Financial Metrics: Housing chronic homeless individuals saves $35,000 per person annually in ER/hospital bed utilization, law enforcement, and municipal shelter costs. 10,000 individuals housed = $350 Million in annual taxpayer savings.
 
-# =====================================================================
-# FLASK WEB ROUTES
-# =====================================================================
+Behavior Directives:
+1. Speak in plain, clear, easily understandable language for any user (civilian or official).
+2. Answer the EXACT question asked (whether about hospital beds, tax dollars, or local economic impact).
+3. Always maintain a confident, authoritative, tactical, and helpful tone.
+4. Keep answers concise (2 to 4 sentences) so they sound crisp when spoken aloud.
+"""
 
 @app.route("/")
-def index():
+def home():
     return render_template("index.html")
 
-
-@app.route("/api/analyze", methods=["POST"])
-def analyze():
+@app.route("/api/chat", methods=["POST"])
+def chat():
     data = request.get_json() or {}
-    unhoused_count = int(data.get("unhoused_count", 100))
-    metrics = calculate_municipal_savings(unhoused_count)
-    
-    return jsonify({
-        "status": "success",
-        "system": "Nova-AI Powerhouse Core Engine (CPU Mode)",
-        "metrics": metrics,
-        "summary": (
-            f"Transitioning {unhoused_count} individuals into permanent housing "
-            f"yields an estimated {metrics['total_annual_savings']} in total municipal savings, "
-            f"reducing local emergency department strain by {metrics['er_cost_reduction']} "
-            f"and county corrections expenditure by {metrics['jail_cost_reduction']} annually."
-        )
-    })
+    user_query = data.get("query", "").strip()
 
+    if not user_query:
+        return jsonify({"response": "Awaiting strategic directive."})
 
-@app.route("/api/generate_report", methods=["POST"])
-def generate_report():
-    data = request.get_json() or {}
-    region = data.get("region", "Eastern North Carolina")
-    target_count = int(data.get("target_count", 50))
-    metrics = calculate_municipal_savings(target_count)
-    
-    executive_script = (
-        f"EXECUTIVE BRIEFING: NOVA-AI DEPLOYMENT FOR {region.upper()}\n"
-        f"---------------------------------------------------\n"
-        f"Target Population Transition: {target_count} individuals\n"
-        f"Projected Annual Taxpayer Offset: {metrics['total_annual_savings']}\n"
-        f"- Healthcare (ER) Savings: {metrics['er_cost_reduction']}\n"
-        f"- Corrections (Jail) Savings: {metrics['jail_cost_reduction']}\n\n"
-        f"Strategic Impact: Nova-AI matches existing vacant regional housing "
-        f"with high-utilization individuals, directly relieving budgetary pressure "
-        f"on municipal services while establishing stable housing pathways."
-    )
-    
-    return jsonify({
-        "status": "success",
-        "region": region,
-        "briefing": executive_script
-    })
+    try:
+        if GEMINI_API_KEY:
+            model = genai.GenerativeModel(
+                model_name="gemini-1.5-flash",
+                system_instruction=SYSTEM_INSTRUCTION
+            )
+            response = model.generate_content(user_query)
+            reply = response.text.strip()
+        else:
+            # Fallback dynamic calculation if API key isn't attached yet
+            reply = fallback_tactical_engine(user_query)
+    except Exception as e:
+        reply = fallback_tactical_engine(user_query)
 
-# =====================================================================
-# SYSTEM LAUNCH
-# =====================================================================
+    return jsonify({"response": reply})
+
+def fallback_tactical_engine(q):
+    lower = q.toLowerCase() if hasattr(q, 'toLowerCase') else q.lower()
+    if "hospital" in lower or "bed" in lower:
+        return "Hospital Impact Data: Unsheltered individuals average 4 to 5 emergency room visits annually, heavily cluttering local hospital beds in Rocky Mount and statewide. Nova-AI allocation frees critical medical beds by placing individuals into stable housing."
+    elif "cost" in lower or "spend" in lower or "dollar" in lower or "tax" in lower:
+        return "Financial Telemetry: Unhoused individuals cost local taxpayers approximately $35,000 annually in emergency room visits, shelter management, and civic services. Nova-AI directly offsets this expense."
+    else:
+        return f"Telemetry Acknowledged: Processing query regarding '{q}'. Nova-AI optimizes vacant property matching to reduce municipal overhead and stabilize housing."
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 7860))
-    print(f"Starting Nova-AI Powerhouse [CPU Mode] on http://0.0.0.0:{port}")
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
