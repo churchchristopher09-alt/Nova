@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova-AI Powerhouse | Strategic Tactical Engine</title>
+    <title>Nova-AI Powerhouse | Command Engine</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -17,7 +17,7 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
             padding: 15px;
             display: flex;
@@ -40,17 +40,8 @@
             margin-bottom: 20px;
         }
 
-        h1 {
-            color: var(--accent-color);
-            margin: 0 0 6px 0;
-            font-size: 1.6rem;
-        }
-
-        p.subtitle {
-            color: var(--subtext-color);
-            margin: 0 0 12px 0;
-            font-size: 0.85rem;
-        }
+        h1 { color: var(--accent-color); margin: 0 0 6px 0; font-size: 1.6rem; }
+        p.subtitle { color: var(--subtext-color); margin: 0 0 12px 0; font-size: 0.85rem; }
 
         .status-badge {
             display: inline-block;
@@ -79,17 +70,8 @@
             text-align: center;
         }
 
-        .card h3 {
-            margin: 0 0 5px 0;
-            font-size: 0.75rem;
-            color: var(--subtext-color);
-        }
-
-        .card .value {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--accent-color);
-        }
+        .card h3 { margin: 0 0 5px 0; font-size: 0.75rem; color: var(--subtext-color); }
+        .card .value { font-size: 1.2rem; font-weight: bold; color: var(--accent-color); }
 
         .chat-card {
             background: var(--card-bg);
@@ -100,7 +82,7 @@
         }
 
         .chat-box {
-            height: 260px;
+            height: 280px;
             background: #0b0f19;
             border: 1px solid #2a354d;
             border-radius: 8px;
@@ -152,15 +134,9 @@
             cursor: pointer;
         }
 
-        .chip:hover {
-            border-color: var(--accent-color);
-            color: white;
-        }
+        .chip:hover { border-color: var(--accent-color); color: white; }
 
-        .input-row {
-            display: flex;
-            gap: 8px;
-        }
+        .input-row { display: flex; gap: 8px; }
 
         input {
             flex: 1;
@@ -207,7 +183,7 @@
         <div class="header-card">
             <h1>Nova-AI Powerhouse</h1>
             <p class="subtitle">Super Intelligence Core Municipal Allocation Engine</p>
-            <span class="status-badge">System Active & Operational</span>
+            <span class="status-badge">AI Predictive Core Active</span>
         </div>
 
         <div class="grid">
@@ -227,50 +203,37 @@
 
         <div class="chat-card">
             <div class="voice-bar">
-                <h3 style="margin: 0; color: var(--subtext-color); font-size: 0.9rem;">Tactical Intelligence Console</h3>
-                <button class="voice-btn" id="voiceToggle" onclick="testAudio()">🔊 Voice Audio: ACTIVE</button>
+                <h3 style="margin: 0; color: var(--subtext-color); font-size: 0.9rem;">Intelligence Command Console</h3>
+                <button class="voice-btn" onclick="testAudio()">🔊 Voice Audio: ACTIVE</button>
             </div>
             
             <div class="chat-box" id="chatBox">
                 <div class="msg ai">
-                    <strong>Nova-AI Core:</strong> Tactical allocation engine initialized. Voice telemetry online. Awaiting commander directives.
+                    <strong>Nova-AI Core:</strong> AI Core online and listening. Ask any question in plain language regarding Rocky Mount, hospital impacts, or taxpayer savings.
                 </div>
             </div>
 
             <div class="quick-queries">
-                <div class="chip" onclick="quickAsk('How much tax dollars are we spending per ten thousand homeless people?')">Tax Cost for 10k Homeless</div>
-                <div class="chip" onclick="quickAsk('How many vacant homes in North Carolina?')">NC Statewide Vacant Homes</div>
-                <div class="chip" onclick="quickAsk('How many vacant houses are identified in NC District 01?')">NC District 01 Homes</div>
+                <div class="chip" onclick="quickAsk('How does homelessness affect hospital beds in Rocky Mount?')">Hospital Beds Impact</div>
+                <div class="chip" onclick="quickAsk('How much money will Nova-AI save local taxpayers?')">Taxpayer Savings</div>
+                <div class="chip" onclick="quickAsk('How many vacant homes are in NC District 01?')">District 01 Vacant Homes</div>
             </div>
 
             <div class="input-row">
-                <input type="text" id="userInput" placeholder="State your objective or query..." onkeydown="if(event.key==='Enter') sendQuery()">
+                <input type="text" id="userInput" placeholder="Ask any question in plain English..." onkeydown="if(event.key==='Enter') sendQuery()">
                 <button onclick="sendQuery()">Execute</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Pre-load audio engine for mobile browsers
         let synth = window.speechSynthesis;
 
         function testAudio() {
-            speakDirective("Voice synthesizer test complete. Tactical speech engaged.");
+            speakDirective("Voice synthesizer test complete. Nova AI online.");
         }
 
-        function extractCount(q) {
-            let lower = q.toLowerCase();
-            if (lower.includes("ten thousand") || lower.includes("10,000") || lower.includes("10000")) return 10000;
-            if (lower.includes("five hundred") || lower.includes("500")) return 500;
-            if (lower.includes("one thousand") || lower.includes("1,000") || lower.includes("1000")) return 1000;
-            if (lower.includes("five thousand") || lower.includes("5,000") || lower.includes("5000")) return 5000;
-
-            let matches = q.match(/\d+/g);
-            if (matches) return parseInt(matches.join(''));
-            return null;
-        }
-
-        function sendQuery() {
+        async function sendQuery() {
             const input = document.getElementById('userInput');
             const query = input.value.trim();
             if (!query) return;
@@ -278,11 +241,27 @@
             addMessage(query, 'user');
             input.value = '';
 
-            setTimeout(() => {
-                let response = generateTacticalResponse(query);
-                addMessage(response, 'ai');
-                speakDirective(response);
-            }, 300);
+            // Show temporary loading indicator
+            const loadingId = 'loading-' + Date.now();
+            addLoadingMessage("Analyzing municipal query...", loadingId);
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query })
+                });
+                const data = await res.json();
+                
+                removeMessage(loadingId);
+                addMessage(data.response, 'ai');
+                speakDirective(data.response);
+            } catch (err) {
+                removeMessage(loadingId);
+                let fallback = "Nova-AI connects housing allocation directly to emergency resource relief, reducing $35,000 per person in municipal costs.";
+                addMessage(fallback, 'ai');
+                speakDirective(fallback);
+            }
         }
 
         function quickAsk(text) {
@@ -299,51 +278,28 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        function generateTacticalResponse(q) {
-            let lower = q.toLowerCase();
-            let count = extractCount(q);
+        function addLoadingMessage(text, id) {
+            const chatBox = document.getElementById('chatBox');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'msg ai';
+            msgDiv.id = id;
+            msgDiv.innerHTML = `<strong>Nova-AI Core:</strong> <em>${text}</em>`;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
 
-            // 1. Tax Dollars Spent / Cost Queries
-            if (lower.includes("spending") || lower.includes("spend") || lower.includes("tax dollar") || lower.includes("cost") || lower.includes("expense")) {
-                if (count) {
-                    let totalCost = count * 35000;
-                    let displayCost = totalCost >= 1000000 ? (totalCost / 1000000).toFixed(0) + " Million" : totalCost.toLocaleString();
-                    return `Tactical Data: Taxpayers spend approximately $35,000 per person annually on chronic homelessness. For ${count.toLocaleString()} individuals, municipal and government spending totals $${displayCost} Dollars every single year in emergency medical, shelter, and judicial costs.`;
-                }
-                return "Tactical Data: Taxpayers currently spend approximately $35,000 per chronically homeless individual each year across medical care, incarceration, and emergency service costs.";
-            }
-
-            // 2. Savings Calculations
-            if (lower.includes("saving") || lower.includes("save") || lower.includes("offset")) {
-                let num = count || 10000;
-                let savings = num * 35000;
-                let displaySavings = savings >= 1000000 ? (savings / 1000000).toFixed(0) + " Million" : savings.toLocaleString();
-                return `Strategic Projection: Transitioning ${num.toLocaleString()} individuals into Nova-AI allocated vacant housing generates $${displaySavings} Dollars in direct taxpayer savings annually.`;
-            }
-
-            // 3. State-wide NC Query
-            if (lower.includes("north carolina") && !lower.includes("district")) {
-                return "Statewide Analysis: Telemetry identifies approximately 48,500 vacant or underutilized residential properties across the State of North Carolina.";
-            }
-
-            // 4. District 01 / Local Query
-            if (lower.includes("district 01") || lower.includes("nc-01") || lower.includes("rocky mount")) {
-                return "District Briefing: Nova-AI pinpoints exactly 1,248 verified vacant residential units within NC District 01 ready for immediate transitional deployment.";
-            }
-
-            return `Directive acknowledged: "${q}". Standard operational cost benchmark is $35,000 per individual. Nova-AI eliminates this burden by rapid vacant property allocation.`;
+        function removeMessage(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
         }
 
         function speakDirective(text) {
             if ('speechSynthesis' in window) {
-                synth.cancel(); // Stop any previous voice speech
-                
-                // Clean HTML tags before speaking
+                synth.cancel();
                 let cleanText = text.replace(/<[^>]*>?/gm, '');
                 let utterance = new SpeechSynthesisUtterance(cleanText);
-                
-                utterance.pitch = 0.75; // Tactical deep military voice
-                utterance.rate = 0.95;  // Clear deliberate pace
+                utterance.pitch = 0.8;
+                utterance.rate = 0.95;
 
                 let voices = synth.getVoices();
                 let selectedVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Male') || v.name.includes('David') || v.name.includes('Google US')));
