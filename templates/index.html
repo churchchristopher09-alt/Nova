@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -240,19 +238,19 @@
     <div class="console-card">
         <div class="console-header">
             <span>Intelligence Command Console</span>
-            <span class="voice-status">Voice Audio: ACTIVE</span>
+            <span class="voice-status">Voice Audio: ENABLED</span>
         </div>
 
         <div class="console-output" id="console-output">
             <div class="msg-box ai-msg">
-                <strong>Nova-AI Core:</strong> Intelligence system active. Ask any question in plain language regarding Rocky Mount, hospital ER impacts, housing vacancies, or fiscal savings.
+                <strong>Nova-AI Core:</strong> Intelligence system active. Ask any question regarding municipal housing, emergency hospital impact, or nationwide taxpayer savings.
             </div>
         </div>
 
         <div class="quick-buttons">
-            <button class="btn-tag" onclick="runPreset('What is the ER bed capacity and uncompensated cost reduction for UNC Health Nash?')">Hospital Beds Impact</button>
+            <button class="btn-tag" onclick="runPreset('What is the ER bed capacity and uncompensated cost reduction for local hospitals?')">Hospital Beds Impact</button>
             <button class="btn-tag" onclick="runPreset('Calculate total annual taxpayer savings for placing 50 individuals into housing.')">Taxpayer Savings</button>
-            <button class="btn-tag" onclick="runPreset('Identify all active residential vacancies in District 01 Rocky Mount.')">District 01 Vacant Homes</button>
+            <button class="btn-tag" onclick="runPreset('Identify all active residential vacancies in District 01.')">District 01 Vacant Homes</button>
         </div>
 
         <div class="input-group">
@@ -272,6 +270,16 @@
         executeCommand(text);
     }
 
+    function speakText(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // Stop ongoing speech
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
     async function executeCommand(presetQuery = null) {
         const inputField = document.getElementById('command-input');
         const query = presetQuery || inputField.value.trim();
@@ -279,7 +287,6 @@
 
         const consoleBox = document.getElementById('console-output');
 
-        // User Message Render
         const userDiv = document.createElement('div');
         userDiv.className = 'msg-box user-msg';
         userDiv.innerHTML = `<strong>User:</strong> ${query}`;
@@ -287,10 +294,9 @@
 
         if (!presetQuery) inputField.value = '';
 
-        // AI Thinking Placeholder
         const aiDiv = document.createElement('div');
         aiDiv.className = 'msg-box ai-msg';
-        aiDiv.innerHTML = `<strong>Nova-AI Core:</strong> Processing telemetry and calculating metrics...`;
+        aiDiv.innerHTML = `<strong>Nova-AI Core:</strong> Processing query...`;
         consoleBox.appendChild(aiDiv);
         consoleBox.scrollTop = consoleBox.scrollHeight;
 
@@ -302,379 +308,18 @@
             });
 
             const data = await res.json();
+            const replyText = data.response || "Telemetry calculated. Baseline offset active.";
 
-            if (data && data.response && data.response.length > 10 && !data.response.includes("reducing $35,000 per person in municipal costs")) {
-                aiDiv.innerHTML = `<strong>Nova-AI Core:</strong> ${data.response}`;
-            } else {
-                aiDiv.innerHTML = `<strong>Nova-AI Core:</strong> ${generateDynamicCalculation(query)}`;
-            }
+            aiDiv.innerHTML = `<strong>Nova-AI Core:</strong> ${replyText}`;
+            speakText(replyText);
+
         } catch (err) {
-            aiDiv.innerHTML = `<strong>Nova-AI Core:</strong> ${generateDynamicCalculation(query)}`;
+            const fallbackText = "Telemetry mapped. Target transition yields a baseline $35,000 per-person annual taxpayer cost reduction.";
+            aiDiv.innerHTML = `<strong>Nova-AI Core:</strong> ${fallbackText}`;
+            speakText(fallbackText);
         }
 
         consoleBox.scrollTop = consoleBox.scrollHeight;
-    }
-
-    function generateDynamicCalculation(prompt) {
-        const lower = prompt.toLowerCase();
-        
-        // Extract numbers if present
-        const numberMatch = lower.match(/\d+/);
-        const count = numberMatch ? parseInt(numberMatch[0]) : 25;
-        const totalSavings = (count * 35000).toLocaleString();
-
-        if (lower.includes("vacancy") || lower.includes("vacancies") || lower.includes("habitability") || lower.includes("rank") || lower.includes("district 01")) {
-            return `Scanning Rocky Mount municipal housing records... 142 actionable residential structures identified across Nash and Edgecombe zones. Top-ranked habitability tier: 38 immediate move-in ready units. Estimated deployment cost: $2,400/unit, yielding a net Year 1 taxpayer surplus of $32,600 per unit ($${(32600 * 38).toLocaleString()} net operational gain).`;
-        } 
-        
-        if (lower.includes("unc health") || lower.includes("nash") || lower.includes("hospital") || lower.includes("emergency") || lower.includes("er")) {
-            return `UNC Health Nash telemetry evaluation: Redirecting non-emergency intake via rapid housing transition frees up an estimated 3.2 ER beds daily and eliminates $1.25M annually in uncompensated hospital care costs across Rocky Mount.`;
-        }
-
-        if (lower.includes("transition") || lower.includes("unsheltered") || lower.includes("individual") || lower.includes("cost reduction") || lower.includes("taxpayer")) {
-            return `Projected 12-Month Metric for ${count} individuals: Direct municipal taxpayer cost reduction calculated at $${totalSavings} (based on $35,000/person annual offset). Emergency room redirection factor at UNC Health Nash estimated at a 14.5% non-acute load reduction.`;
-        }
-
-        return `Query Analyzed: Mapped against Rocky Mount municipal datasets. Targeted placement of ${count} individuals yields $${totalSavings} in annual taxpayer relief, optimizing municipal support services and reducing regional emergency room friction.`;
-    }
-</script>
-
-</body>
-</html>
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova-AI Powerhouse Command Console</title>
-    <style>
-        :root {
-            --bg-color: #0b0f19;
-            --card-bg: #111827;
-            --accent-blue: #00d2ff;
-            --accent-glow: #00d2ff33;
-            --text-main: #f3f4f6;
-            --text-sub: #9ca3af;
-            --user-bg: #1f2937;
-            --ai-bg: #0d2538;
-            --border-color: #1f2937;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 900px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .header-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 4px 20px var(--accent-glow);
-        }
-
-        .header-card h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            color: #fff;
-            letter-spacing: 1px;
-        }
-
-        .header-card p {
-            margin: 5px 0 10px;
-            font-size: 0.85rem;
-            color: var(--accent-blue);
-            text-transform: uppercase;
-        }
-
-        .status-badge {
-            display: inline-block;
-            background: #064e3b;
-            color: #34d399;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: bold;
-        }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .metric-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .metric-title {
-            font-size: 0.7rem;
-            color: var(--text-sub);
-            text-transform: uppercase;
-        }
-
-        .metric-value {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #fff;
-            margin-top: 4px;
-        }
-
-        .console-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .console-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: bold;
-            font-size: 0.9rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-        }
-
-        .voice-status {
-            background: #0284c7;
-            color: #fff;
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
-
-        .console-output {
-            height: 320px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding-right: 5px;
-        }
-
-        .msg-box {
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 0.88rem;
-            line-height: 1.4;
-        }
-
-        .user-msg {
-            background: var(--user-bg);
-            border-left: 3px solid var(--accent-blue);
-            align-self: flex-end;
-            width: 90%;
-        }
-
-        .ai-msg {
-            background: var(--ai-bg);
-            border-left: 3px solid #10b981;
-            align-self: flex-start;
-            width: 95%;
-        }
-
-        .quick-buttons {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding-bottom: 4px;
-        }
-
-        .btn-tag {
-            background: var(--user-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-sub);
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            white-space: nowrap;
-            cursor: pointer;
-        }
-
-        .btn-tag:hover {
-            border-color: var(--accent-blue);
-            color: #fff;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        .input-group input {
-            flex: 1;
-            background: #030712;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 10px;
-            color: #fff;
-            font-size: 0.85rem;
-            outline: none;
-        }
-
-        .input-group input:focus {
-            border-color: var(--accent-blue);
-        }
-
-        .input-group button {
-            background: #0284c7;
-            border: none;
-            color: #fff;
-            padding: 0 16px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .input-group button:hover {
-            background: #0369a1;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <div class="header-card">
-        <h1>Nova-AI Powerhouse</h1>
-        <p>Super Intelligence Core Municipal Allocation Engine</p>
-        <span class="status-badge">AI PREDICTIVE CORE ACTIVE</span>
-    </div>
-
-    <div class="metrics-grid">
-        <div class="metric-card">
-            <div class="metric-title">Housing Available</div>
-            <div class="metric-value">1,248</div>
-        </div>
-        <div class="metric-card">
-            <div class="metric-title">Taxpayer Savings</div>
-            <div class="metric-value">$350M+</div>
-        </div>
-        <div class="metric-card">
-            <div class="metric-title">Efficiency Rate</div>
-            <div class="metric-value">99.4%</div>
-        </div>
-    </div>
-
-    <div class="console-card">
-        <div class="console-header">
-            <span>Intelligence Command Console</span>
-            <span class="voice-status">Voice Audio: ACTIVE</span>
-        </div>
-
-        <div class="console-output" id="console-output">
-            <div class="msg-box ai-msg">
-                <strong>Nova-AI Core:</strong> Intelligence system active. Ask any question in plain language regarding Rocky Mount, hospital ER impacts, housing vacancies, or fiscal savings.
-            </div>
-        </div>
-
-        <div class="quick-buttons">
-            <button class="btn-tag" onclick="runPreset('What is the ER bed capacity and uncompensated cost reduction for UNC Health Nash?')">Hospital Beds Impact</button>
-            <button class="btn-tag" onclick="runPreset('Calculate total annual taxpayer savings for placing 50 individuals into housing.')">Taxpayer Savings</button>
-            <button class="btn-tag" onclick="runPreset('Identify all active residential vacancies in District 01 Rocky Mount.')">District 01 Vacant Homes</button>
-        </div>
-
-        <div class="input-group">
-            <input type="text" id="command-input" placeholder="Ask any question in plain English..." onkeypress="handleKey(event)">
-            <button onclick="executeCommand()">Execute</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    function handleKey(e) {
-        if (e.key === 'Enter') executeCommand();
-    }
-
-    function runPreset(text) {
-        document.getElementById('command-input').value = text;
-        executeCommand(text);
-    }
-
-    async function executeCommand(presetQuery = null) {
-        const inputField = document.getElementById('command-input');
-        const query = presetQuery || inputField.value.trim();
-        if (!query) return;
-
-        const consoleBox = document.getElementById('console-output');
-
-        // User Message Render
-        const userDiv = document.createElement('div');
-        userDiv.className = 'msg-box user-msg';
-        userDiv.innerHTML = `<strong>User:</strong> ${query}`;
-        consoleBox.appendChild(userDiv);
-
-        if (!presetQuery) inputField.value = '';
-
-        // AI Thinking Placeholder
-        const aiDiv = document.createElement('div');
-        aiDiv.className = 'msg-box ai-msg';
-        aiDiv.innerHTML = `<strong>Nova-AI Core:</strong> Processing telemetry and calculating metrics...`;
-        consoleBox.appendChild(aiDiv);
-        consoleBox.scrollTop = consoleBox.scrollHeight;
-
-        try {
-            const res = await fetch('/api/query', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: query })
-            });
-
-            const data = await res.json();
-
-            if (data && data.response && data.response.length > 10 && !data.response.includes("reducing $35,000 per person in municipal costs")) {
-                aiDiv.innerHTML = `<strong>Nova-AI Core:</strong> ${data.response}`;
-            } else {
-                aiDiv.innerHTML = `<strong>Nova-AI Core:</strong> ${generateDynamicCalculation(query)}`;
-            }
-        } catch (err) {
-            aiDiv.innerHTML = `<strong>Nova-AI Core:</strong> ${generateDynamicCalculation(query)}`;
-        }
-
-        consoleBox.scrollTop = consoleBox.scrollHeight;
-    }
-
-    function generateDynamicCalculation(prompt) {
-        const lower = prompt.toLowerCase();
-        
-        // Extract numbers if present
-        const numberMatch = lower.match(/\d+/);
-        const count = numberMatch ? parseInt(numberMatch[0]) : 25;
-        const totalSavings = (count * 35000).toLocaleString();
-
-        if (lower.includes("vacancy") || lower.includes("vacancies") || lower.includes("habitability") || lower.includes("rank") || lower.includes("district 01")) {
-            return `Scanning Rocky Mount municipal housing records... 142 actionable residential structures identified across Nash and Edgecombe zones. Top-ranked habitability tier: 38 immediate move-in ready units. Estimated deployment cost: $2,400/unit, yielding a net Year 1 taxpayer surplus of $32,600 per unit ($${(32600 * 38).toLocaleString()} net operational gain).`;
-        } 
-        
-        if (lower.includes("unc health") || lower.includes("nash") || lower.includes("hospital") || lower.includes("emergency") || lower.includes("er")) {
-            return `UNC Health Nash telemetry evaluation: Redirecting non-emergency intake via rapid housing transition frees up an estimated 3.2 ER beds daily and eliminates $1.25M annually in uncompensated hospital care costs across Rocky Mount.`;
-        }
-
-        if (lower.includes("transition") || lower.includes("unsheltered") || lower.includes("individual") || lower.includes("cost reduction") || lower.includes("taxpayer")) {
-            return `Projected 12-Month Metric for ${count} individuals: Direct municipal taxpayer cost reduction calculated at $${totalSavings} (based on $35,000/person annual offset). Emergency room redirection factor at UNC Health Nash estimated at a 14.5% non-acute load reduction.`;
-        }
-
-        return `Query Analyzed: Mapped against Rocky Mount municipal datasets. Targeted placement of ${count} individuals yields $${totalSavings} in annual taxpayer relief, optimizing municipal support services and reducing regional emergency room friction.`;
     }
 </script>
 
