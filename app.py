@@ -4,10 +4,10 @@ from openai import OpenAI
 
 app = Flask(__name__)
 
-# Initialize OpenAI Client (Pulls API key from Render Environment Variables)
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# Initialize OpenAI Client securely from environment variables
+api_key = os.environ.get("OPENAI_API_KEY")
+client = OpenAI(api_key=api_key) if api_key else None
 
-# Nova-AI Master System Directive (Encapsulates all 12 Pillars & State Awareness)
 MASTER_SYSTEM_DIRECTIVE = """
 You are Nova-AI Powerhouse, a Super-Intelligence Core Municipal Allocation Engine and silent strategic partner to city officials, healthcare executives, housing authorities, and state leadership across all 50 states.
 
@@ -45,8 +45,12 @@ def query_api():
     if not prompt:
         return jsonify({'response': 'Nova-AI Super-Intelligence Core active. Present your query.'})
 
+    if not client:
+        return jsonify({
+            'response': 'Nova-AI Core Active: OPENAI_API_KEY environment variable is missing on Render. Please configure it under Service Settings.'
+        })
+
     try:
-        # Query the Live LLM Engine
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
@@ -61,7 +65,7 @@ def query_api():
 
     except Exception as e:
         return jsonify({
-            'response': f"Nova-AI Telemetry Alert: Unable to reach LLM core. Verify OPENAI_API_KEY on Render. Details: {str(e)}"
+            'response': f"Nova-AI Telemetry Alert: Exception caught during core LLM processing: {str(e)}"
         })
 
 if __name__ == '__main__':
