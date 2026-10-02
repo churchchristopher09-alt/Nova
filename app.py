@@ -1,12 +1,12 @@
 import os
 from flask import Flask, render_template, request, jsonify
-from openai import OpenAI
+from google import genai
 
 app = Flask(__name__)
 
-# Initialize OpenAI Client securely from environment variables
-api_key = os.environ.get("OPENAI_API_KEY")
-client = OpenAI(api_key=api_key) if api_key else None
+# Initialize Google GenAI Client
+api_key = os.environ.get("GEMINI_API_KEY")
+client = genai.Client(api_key=api_key) if api_key else None
 
 MASTER_SYSTEM_DIRECTIVE = """
 You are Nova-AI Powerhouse, a Super-Intelligence Core Municipal Allocation Engine and silent strategic partner to city officials, healthcare executives, housing authorities, and state leadership across all 50 states.
@@ -47,20 +47,20 @@ def query_api():
 
     if not client:
         return jsonify({
-            'response': 'Nova-AI Core Active: OPENAI_API_KEY environment variable is missing on Render. Please configure it under Service Settings.'
+            'response': 'Nova-AI Core Active: GEMINI_API_KEY environment variable is missing on Render. Please configure it under Service Settings.'
         })
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": MASTER_SYSTEM_DIRECTIVE},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.3
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+            config={
+                'system_instruction': MASTER_SYSTEM_DIRECTIVE,
+                'temperature': 0.3,
+            }
         )
         
-        answer = response.choices[0].message.content.strip()
+        answer = response.text.strip()
         return jsonify({'response': answer})
 
     except Exception as e:
