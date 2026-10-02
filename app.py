@@ -1,32 +1,37 @@
 import os
-import re
 from flask import Flask, render_template, request, jsonify
+from openai import OpenAI
 
 app = Flask(__name__)
 
-STATE_METRICS = {
-    "NC": {"name": "North Carolina", "cost_per_person": 35000, "er_savings": 1250000, "blight_unit": 32600},
-    "CA": {"name": "California", "cost_per_person": 42000, "er_savings": 1850000, "blight_unit": 45000},
-    "NY": {"name": "New York", "cost_per_person": 45000, "er_savings": 2100000, "blight_unit": 48000},
-    "TX": {"name": "Texas", "cost_per_person": 31000, "er_savings": 1100000, "blight_unit": 28000},
-    "FL": {"name": "Florida", "cost_per_person": 33000, "er_savings": 1200000, "blight_unit": 30000},
-    "DEFAULT": {"name": "National Standard", "cost_per_person": 35000, "er_savings": 1300000, "blight_unit": 33000}
-}
+# Initialize OpenAI Client (Pulls API key from Render Environment Variables)
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
-STATE_LOOKUP = {
-    "north carolina": "NC", "nc": "NC", "rocky mount": "NC", "nash": "NC",
-    "california": "CA", "ca": "CA",
-    "new york": "NY", "ny": "NY",
-    "texas": "TX", "tx": "TX",
-    "florida": "FL", "fl": "FL"
-}
+# Nova-AI Master System Directive (Encapsulates all 12 Pillars & State Awareness)
+MASTER_SYSTEM_DIRECTIVE = """
+You are Nova-AI Powerhouse, a Super-Intelligence Core Municipal Allocation Engine and silent strategic partner to city officials, healthcare executives, housing authorities, and state leadership across all 50 states.
 
-def detect_state(prompt):
-    lower = prompt.lower()
-    for key, code in STATE_LOOKUP.items():
-        if key in lower:
-            return STATE_METRICS[code]
-    return STATE_METRICS["NC"]
+You specialize in solving municipal crises across 12 Core Pillars:
+1. Real Estate & Property Recovery (Blight, zoning, land banks, property tax restoration @ ~$32,600+/unit)
+2. Tax Relief & Fiscal Policy (Taxpayer burden reduction, general fund preservation @ ~$35,000+/person annually)
+3. Banking & Financial Institutions (CRA Community Reinvestment Act compliance, direct accounts, financial inclusion)
+4. Healthcare & Hospitals (Uncompensated care reduction @ ~$1.25M+, UNC Health Nash & emergency room bed diversion)
+5. Public Education & Schools (McKinney-Vento displacement reduction, Title I retention, family stabilization)
+6. Justice & Reentry (Recidivism reduction by 68%, jail bed cost savings @ ~$22,400+/person)
+7. Workforce Development (Local economic expansion, job placement, payroll tax base growth)
+8. Public Safety & Emergency Services (911 dispatch optimization, police resource reallocation)
+9. Federal & State Grant Alignment (HUD Continuum of Care, HOME-ARP, ARPA allocations for ZERO NET IMPACT)
+10. Infrastructure & Code Enforcement (City service recapturing, utility stability)
+11. Commercial Corridors & Opportunity Zones (Small business foot traffic, downtown revitalization)
+12. Strategic Action Protocols (Clear, step-by-step rollout plans for city councils and mayors)
+
+Operational Rules:
+- Detect the state or municipality in the user's prompt (default to North Carolina / Rocky Mount if unspecified).
+- Perform exact mathematical projections dynamically whenever headcount or years are mentioned.
+- Provide direct, policy-grade, intelligent solutions to WHATEVER question is asked.
+- Maintain an authoritative, sharp, highly competent tone with a subtle, witty edge when appropriate.
+- Never give broken fallback responses. Analyze, calculate, and solve the problem presented.
+"""
 
 @app.route('/')
 def home():
@@ -38,64 +43,26 @@ def query_api():
     prompt = data.get('prompt', '').strip()
     
     if not prompt:
-        return jsonify({'response': 'Nova-AI Core Active. Select a jurisdiction or submit a query.'})
+        return jsonify({'response': 'Nova-AI Super-Intelligence Core active. Present your query.'})
 
-    lower = prompt.lower()
-    numbers = re.findall(r'\d+', lower)
-    region = detect_state(prompt)
+    try:
+        # Query the Live LLM Engine
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": MASTER_SYSTEM_DIRECTIVE},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3
+        )
+        
+        answer = response.choices[0].message.content.strip()
+        return jsonify({'response': answer})
 
-    # 1. Action Protocol / "How can we fix this" / "What do we do"
-    if any(k in lower for k in ["fix", "solution", "action plan", "what do we do", "next steps", "protocol"]):
+    except Exception as e:
         return jsonify({
-            'response': f"Nova-AI Strategic Action Protocol [{region['name']}]: 1) Deploy predictive housing triage to match unsheltered individuals with high-habitability vacant structures; 2) Utilize HUD/HOME-ARP grant allocations to eliminate municipal general fund expense; 3) Recapture up to ${region['blight_unit']:,}/unit in property value."
+            'response': f"Nova-AI Telemetry Alert: Unable to reach LLM core. Verify OPENAI_API_KEY on Render. Details: {str(e)}"
         })
-
-    # 2. Education & Schools
-    if any(k in lower for k in ["school", "education", "student", "district"]):
-        return jsonify({
-            'response': f"Educational Impact Telemetry [{region['name']}]: Rapid housing stabilization directly improves student retention across local public school districts, reducing Title I McKinney-Vento displacement costs."
-        })
-
-    # 3. Dynamic Math Engine with Multi-Year & Grant Offset Support
-    years = 1
-    year_match = re.search(r'(\d+)\s*(?:-| )\s*year', lower)
-    if year_match:
-        years = int(year_match.group(1))
-
-    if numbers and any(k in lower for k in ["unsheltered", "individual", "people", "taxpayer", "cost", "places", "person", "stabilizes", "housing"]):
-        headcount = max([int(n) for n in numbers if int(n) != years]) if len(numbers) > 1 else int(numbers[0])
-        annual_savings = headcount * region["cost_per_person"]
-        total_savings = annual_savings * years
-
-        grant_note = ""
-        if any(k in lower for k in ["hud", "grant", "home-arp", "arpa", "offset"]):
-            grant_note = " Implementation leverages HUD/HOME-ARP federal grant allocations for zero net impact to municipal general funds."
-
-        return jsonify({
-            'response': f"Nova-AI Telemetry [{region['name']}]: For {headcount:,} individuals over a {years}-year projection, total municipal taxpayer cost offset is calculated at ${total_savings:,} (based on ${region['cost_per_person']:,}/person annual metric).{grant_note}"
-        })
-
-    # 4. Blight & Housing Impact
-    if any(k in lower for k in ["vacant", "blight", "property", "corridor"]):
-        return jsonify({
-            'response': f"Vacant Housing Fiscal Telemetry [{region['name']}]: Blighted residential structures cost local municipal taxpayers an estimated ${region['blight_unit']:,} per unit annually in lost tax revenue and service costs."
-        })
-
-    # 5. Healthcare Infrastructure Impact
-    if any(k in lower for k in ["hospital", "er", "emergency", "health"]):
-        return jsonify({
-            'response': f"Regional Health Telemetry [{region['name']}]: Rapid housing placement diverts non-acute ER intake, freeing hospital beds and eliminating roughly ${region['er_savings']:,} in uncompensated care costs annually."
-        })
-
-    # 6. HUD & Grant Alignment
-    if any(k in lower for k in ["hud", "grant", "arpa", "home-arp", "funding"]):
-        return jsonify({
-            'response': f"Federal Fiscal Framework [{region['name']}]: Platform implementation qualifies for HUD Continuum of Care (CoC), HOME-ARP, and state-level technical assistance grants, enabling local adoption at zero net impact to general funds."
-        })
-
-    return jsonify({
-        'response': f"Nova-AI Super-Intelligence Core [{region['name']}]: Query evaluated against regional datasets. Telemetry confirms optimal alignment for strategic municipal deployment."
-    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
