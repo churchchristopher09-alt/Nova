@@ -4,69 +4,52 @@ from google import genai
 
 app = Flask(__name__)
 
-# Initialize Google GenAI Client
+# Initialize Google GenAI Client using the GEMINI_API_KEY environment variable
 api_key = os.environ.get("GEMINI_API_KEY")
 client = genai.Client(api_key=api_key) if api_key else None
 
 MASTER_SYSTEM_DIRECTIVE = """
-You are Nova-AI Powerhouse, a Super-Intelligence Core Municipal Allocation Engine and silent strategic partner to city officials, healthcare executives, housing authorities, and state leadership across all 50 states.
+You are Nova-AI Powerhouse, a Super Intelligence Core Municipal Allocation Engine.
 
-You specialize in solving municipal crises across 12 Core Pillars:
-1. Real Estate & Property Recovery (Blight, zoning, land banks, property tax restoration @ ~$32,600+/unit)
-2. Tax Relief & Fiscal Policy (Taxpayer burden reduction, general fund preservation @ ~$35,000+/person annually)
-3. Banking & Financial Institutions (CRA Community Reinvestment Act compliance, direct accounts, financial inclusion)
-4. Healthcare & Hospitals (Uncompensated care reduction @ ~$1.25M+, UNC Health Nash & emergency room bed diversion)
-5. Public Education & Schools (McKinney-Vento displacement reduction, Title I retention, family stabilization)
-6. Justice & Reentry (Recidivism reduction by 68%, jail bed cost savings @ ~$22,400+/person)
-7. Workforce Development (Local economic expansion, job placement, payroll tax base growth)
-8. Public Safety & Emergency Services (911 dispatch optimization, police resource reallocation)
-9. Federal & State Grant Alignment (HUD Continuum of Care, HOME-ARP, ARPA allocations for ZERO NET IMPACT)
-10. Infrastructure & Code Enforcement (City service recapturing, utility stability)
-11. Commercial Corridors & Opportunity Zones (Small business foot traffic, downtown revitalization)
-12. Strategic Action Protocols (Clear, step-by-step rollout plans for city councils and mayors)
+You specialize in solving municipal inefficiencies and optimizing public safety net systems:
+1. Real Estate & Property Recovery (Housing chronic homeless into vacant municipal inventory)
+2. Tax Relief & Fiscal Policy (Taxpayer cost-offset analytics)
+3. Banking & Financial Institutions (HUD/CDBG grant tracking and allocation)
+4. Healthcare & Hospitals (Uncompensated ER diversion savings)
+5. Public Education & Schools (McKinney-Vento housing support)
+6. Justice & Safety (Recidivism reduction and jail bed diversion)
+7. Workforce Development (Local economic re-entry and labor reintegration)
 
-Operational Rules:
-- Detect the state or municipality in the user's prompt (default to North Carolina / Rocky Mount if unspecified).
-- Perform exact mathematical projections dynamically whenever headcount or years are mentioned.
-- Provide direct, policy-grade, intelligent solutions to WHATEVER question is asked.
-- Maintain an authoritative, sharp, highly competent tone with a subtle, witty edge when appropriate.
-- Never give broken fallback responses. Analyze, calculate, and solve the problem presented.
+Maintain an authoritative, sharp, policy-grade, and direct response tone. Perform exact mathematical projections on cost savings when asked.
 """
 
-@app.route('/')
-def home():
-    return render_template('index.html')
+@app.route("/")
+def index():
+    return render_template("index.html")
 
-@app.route('/api/query', methods=['POST'])
-def query_api():
-    data = request.get_json() or {}
-    prompt = data.get('prompt', '').strip()
-    
-    if not prompt:
-        return jsonify({'response': 'Nova-AI Super-Intelligence Core active. Present your query.'})
-
+@app.route("/api/query", methods=["POST"])
+def query():
     if not client:
         return jsonify({
-            'response': 'Nova-AI Core Active: GEMINI_API_KEY environment variable is missing on Render. Please configure it under Service Settings.'
-        })
+            "error": "GEMINI_API_KEY environment variable is missing on Render. Please configure it under Service Settings."
+        }), 500
+
+    data = request.get_json() or {}
+    user_prompt = data.get("prompt", "")
+
+    if not user_prompt:
+        return jsonify({"error": "No query or directive provided."}), 400
 
     try:
+        # Calls the updated gemini-3.8-flash model
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-            config={
-                'system_instruction': MASTER_SYSTEM_DIRECTIVE,
-                'temperature': 0.3,
-            }
+            model="gemini-3.8-flash",
+            contents=f"{MASTER_SYSTEM_DIRECTIVE}\n\nUser Query: {user_prompt}"
         )
-        
-        answer = response.text.strip()
-        return jsonify({'response': answer})
-
+        return jsonify({"response": response.text})
     except Exception as e:
-        return jsonify({
-            'response': f"Nova-AI Telemetry Alert: Exception caught during core LLM processing: {str(e)}"
-        })
+        return jsonify({"error": f"Nova-AI Telemetry Alert: Exception caught during core LLM processing: {str(e)}"}), 500
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
