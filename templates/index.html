@@ -20,8 +20,8 @@
         .container {
             width: 100%;
             max-width: 900px;
-            background: #111827;
-            border: 1px solid #1f2937;
+            background-color: #111827;
+            border: 1px solid #1f293d;
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 0 20px rgba(0, 255, 204, 0.1);
@@ -29,29 +29,27 @@
         .header {
             text-align: center;
             margin-bottom: 20px;
-            border-bottom: 1px solid #1f2937;
+            border-bottom: 1px solid #1f293d;
             padding-bottom: 10px;
         }
-        .header h1 {
-            margin: 0;
-            font-size: 1.8rem;
-            color: #ffffff;
-            letter-spacing: 2px;
-        }
-        .header p {
-            margin: 5px 0 0 0;
-            font-size: 0.8rem;
-            color: #9ca3af;
-        }
         .badge {
-            display: inline-block;
-            background: #064e3b;
-            color: #34d399;
-            font-size: 0.7rem;
-            padding: 2px 8px;
+            background-color: #054f31;
+            color: #00ffcc;
+            font-size: 0.75rem;
+            padding: 4px 8px;
             border-radius: 12px;
-            margin-bottom: 10px;
             text-transform: uppercase;
+            font-weight: bold;
+        }
+        h1 {
+            color: #ffffff;
+            margin: 10px 0 5px 0;
+        }
+        .subtitle {
+            color: #9ca3af;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
         }
         .stats-grid {
             display: grid;
@@ -60,132 +58,124 @@
             margin-bottom: 20px;
         }
         .stat-card {
-            background: #1f2937;
+            background-color: #1f2937;
             padding: 10px;
             border-radius: 4px;
             text-align: center;
         }
-        .stat-card .label {
-            font-size: 0.65rem;
+        .stat-label {
+            font-size: 0.7rem;
             color: #9ca3af;
-            text-transform: uppercase;
         }
-        .stat-card .value {
-            font-size: 1.1rem;
-            font-weight: bold;
+        .stat-value {
+            font-size: 1.2rem;
             color: #ffffff;
+            font-weight: bold;
         }
         .console-box {
-            background: #030712;
-            border: 1px solid #1f2937;
+            background-color: #030712;
+            border: 1px solid #1f293d;
             border-radius: 4px;
-            padding: 15px;
             height: 350px;
+            padding: 15px;
             overflow-y: auto;
             margin-bottom: 15px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             line-height: 1.4;
             white-space: pre-wrap;
         }
-        .console-line {
-            margin-bottom: 10px;
-        }
-        .system-msg { color: #34d399; }
-        .user-msg { color: #60a5fa; }
         .input-group {
             display: flex;
             gap: 10px;
         }
         input[type="text"] {
             flex: 1;
-            background: #030712;
-            border: 1px solid #374151;
+            background-color: #030712;
+            border: 1px solid #1f293d;
             color: #ffffff;
-            padding: 10px;
+            padding: 12px;
             border-radius: 4px;
             font-family: inherit;
         }
         input[type="text"]:focus {
-            outline: none;
-            border-color: #00ffcc;
+            outline: 1px solid #00ffcc;
         }
         button {
-            background: #2563eb;
+            background-color: #2563eb;
             color: #ffffff;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
             font-family: inherit;
         }
         button:hover {
-            background: #1d4ed8;
+            background-color: #1d4ed8;
         }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <div class="header">
-        <span class="badge">AI Predictive Core Active</span>
-        <h1>Nova-AI Powerhouse</h1>
-        <p>SUPER INTELLIGENCE CORE MUNICIPAL ALLOCATION ENGINE</p>
-    </div>
-
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="label">Housing Available</div>
-            <div class="value">1,248</div>
+    <div class="container">
+        <div class="header">
+            <span class="badge">AI Predictive Core Active</span>
+            <h1>Nova-AI Powerhouse</h1>
+            <div class="subtitle">SUPER INTELLIGENCE CORE MUNICIPAL ALLOCATION ENGINE</div>
         </div>
-        <div class="stat-card">
-            <div class="label">Taxpayer Savings</div>
-            <div class="value">$350M+</div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">HOUSING AVAILABLE</div>
+                <div class="stat-value">1,248</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">TAXPAYER SAVINGS</div>
+                <div class="stat-value">$350M+</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">EFFICIENCY RATE</div>
+                <div class="stat-value">99.4%</div>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="label">Efficiency Rate</div>
-            <div class="value">99.4%</div>
+
+        <div id="console" class="console-box">Nova-AI Core: Intelligence system active. Select a jurisdiction or ask any question regarding municipal telemetry.</div>
+
+        <div class="input-group">
+            <input type="text" id="queryInput" placeholder="Enter query or directive..." onkeydown="if(event.key === 'Enter') sendQuery()">
+            <button onclick="sendQuery()">Execute</button>
         </div>
     </div>
 
-    <div class="console-box" id="console">
-        <div class="console-line system-msg">Nova-AI Core: Intelligence system active. Select a jurisdiction or ask any question regarding municipal telemetry.</div>
-    </div>
+    <script>
+        async function sendQuery() {
+            const input = document.getElementById("queryInput");
+            const consoleBox = document.getElementById("console");
+            const prompt = input.value.trim();
 
-    <div class="input-group">
-        <input type="text" id="promptInput" placeholder="Enter query or directive..." onkeydown="if(event.key==='Enter') sendQuery()">
-        <button onclick="sendQuery()">Execute</button>
-    </div>
-</div>
+            if (!prompt) return;
 
-<script>
-    async function sendQuery() {
-        const input = document.getElementById('promptInput');
-        const consoleBox = document.getElementById('console');
-        const query = input.value.trim();
+            consoleBox.innerText += `\n\nUser: ${prompt}`;
+            input.value = "";
+            consoleBox.scrollTop = consoleBox.scrollHeight;
 
-        if (!query) return;
+            try {
+                const response = await fetch("/api/query", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: prompt })
+                });
 
-        consoleBox.innerHTML += `<div class="console-line user-msg">User: ${query}</div>`;
-        input.value = '';
-        consoleBox.scrollTop = consoleBox.scrollHeight;
-
-        try {
-            const response = await fetch('/api/query', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: query })
-            });
-
-            const data = await response.json();
-            consoleBox.innerHTML += `<div class="console-line system-msg">Nova-AI Core: ${data.response}</div>`;
-        } catch (err) {
-            consoleBox.innerHTML += `<div class="console-line system-msg" style="color:#f87171;">Nova-AI Core Error: Network connection failed.</div>`;
+                const data = await response.json();
+                if (data.error) {
+                    consoleBox.innerText += `\n\nNova-AI Core: ${data.error}`;
+                } else {
+                    consoleBox.innerText += `\n\nNova-AI Core: ${data.response}`;
+                }
+            } catch (err) {
+                consoleBox.innerText += `\n\nNova-AI Core: Network connection fault. Unable to process request.`;
+            }
+            consoleBox.scrollTop = consoleBox.scrollHeight;
         }
-
-        consoleBox.scrollTop = consoleBox.scrollHeight;
-    }
-</script>
-
+    </script>
 </body>
 </html>
