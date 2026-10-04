@@ -1,152 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova-AI Powerhouse</title>
-    <style>
-        body {
-            background-color: #0b0f19;
-            color: #00ffcc;
-            font-family: 'Courier New', Courier, monospace;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-        .container {
-            width: 100%;
-            max-width: 900px;
-            background-color: #111827;
-            border: 1px solid #1f293d;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.1);
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #1f293d;
-            padding-bottom: 10px;
-        }
-        .badge {
-            background-color: #054f31;
-            color: #00ffcc;
-            font-size: 0.75rem;
-            padding: 4px 8px;
-            border-radius: 12px;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-        h1 {
-            color: #ffffff;
-            margin: 10px 0 5px 0;
-        }
-        .subtitle {
-            color: #9ca3af;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-            margin-bottom: 15px;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .stat-card {
-            background-color: #1f2937;
-            padding: 10px;
-            border-radius: 4px;
-            text-align: center;
-        }
-        .stat-label {
-            font-size: 0.7rem;
-            color: #9ca3af;
-        }
-        .stat-value {
-            font-size: 1.2rem;
-            color: #ffffff;
-            font-weight: bold;
-        }
-        .console-box {
-            background-color: #030712;
-            border: 1px solid #1f293d;
-            border-radius: 4px;
-            height: 350px;
-            padding: 15px;
-            overflow-y: auto;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            white-space: pre-wrap;
-        }
-        .input-group {
-            display: flex;
-            gap: 10px;
-        }
-        input[type="text"] {
-            flex: 1;
-            background-color: #030712;
-            border: 1px solid #1f293d;
-            color: #ffffff;
-            padding: 12px;
-            border-radius: 4px;
-            font-family: inherit;
-        }
-        input[type="text"]:focus {
-            outline: 1px solid #00ffcc;
-        }
-        button {
-            background-color: #2563eb;
-            color: #ffffff;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-family: inherit;
-        }
-        button:hover {
-            background-color: #1d4ed8;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <span class="badge">AI Predictive Core Active</span>
-            <h1>Nova-AI Powerhouse</h1>
-            <div class="subtitle">SUPER INTELLIGENCE CORE MUNICIPAL ALLOCATION ENGINE</div>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">HOUSING AVAILABLE</div>
-                <div class="stat-value">1,248</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">TAXPAYER SAVINGS</div>
-                <div class="stat-value">$350M+</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">EFFICIENCY RATE</div>
-                <div class="stat-value">99.4%</div>
-            </div>
-        </div>
-
-        <div id="console" class="console-box">Nova-AI Core: Intelligence system active. Select a jurisdiction or ask any question regarding municipal telemetry.</div>
-
-        <div class="input-group">
-            <input type="text" id="queryInput" placeholder="Enter query or directive..." onkeydown="if(event.key === 'Enter') sendQuery()">
-            <button onclick="sendQuery()">Execute</button>
-        </div>
-    </div>
-
     <script>
+        // Voice synthesis configuration
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                // Stop any current speech
+                window.speechSynthesis.cancel();
+
+                // Clean up Markdown symbols (*, #, $, etc.) so the voice reads cleanly
+                const cleanText = text.replace(/[*#$`\\_]/g, '');
+
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.rate = 0.95; // Clear, authoritative pacing
+                utterance.pitch = 1.0;
+
+                // Select a preferred clear English voice if available
+                const voices = window.speechSynthesis.getVoices();
+                const preferredVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Female')));
+                if (preferredVoice) {
+                    utterance.voice = preferredVoice;
+                }
+
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
         async function sendQuery() {
             const input = document.getElementById("queryInput");
             const consoleBox = document.getElementById("console");
@@ -168,8 +44,11 @@
                 const data = await response.json();
                 if (data.error) {
                     consoleBox.innerText += `\n\nNova-AI Core: ${data.error}`;
+                    speakText("Telemetry alert. System encountered an issue.");
                 } else {
                     consoleBox.innerText += `\n\nNova-AI Core: ${data.response}`;
+                    // Trigger live voice execution
+                    speakText(data.response);
                 }
             } catch (err) {
                 consoleBox.innerText += `\n\nNova-AI Core: Network connection fault. Unable to process request.`;
@@ -177,5 +56,3 @@
             consoleBox.scrollTop = consoleBox.scrollHeight;
         }
     </script>
-</body>
-</html>
