@@ -2,6 +2,7 @@ import os
 from flask import Flask, request, jsonify
 from google import genai
 from google.genai import types
+model="gemini-1.5-flash",
 
 app = Flask(__name__)
 
