@@ -102,8 +102,6 @@ def query():
         api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
             return jsonify({"error": "GEMINI_API_KEY environment variable missing."}), 500
-# NEW LINE:
-model="gemini-3.8-flash",
 
         client = genai.Client(api_key=api_key)
         
@@ -116,7 +114,7 @@ model="gemini-3.8-flash",
         )
         
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.8-flash",
             contents=user_prompt,
             config=config
         )
