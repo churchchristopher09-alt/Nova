@@ -115,7 +115,7 @@ def query():
         )
         
         # Retry loop for handling temporary 503 high demand periods
-        models_to_try = ["gemini-3.8-flash", "gemini-2.0-flash"]
+        models_to_try = ["gemini-3.8-flash", "gemini-3.8-flash"]
         
         for model_name in models_to_try:
             for attempt in range(2):
