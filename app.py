@@ -2,7 +2,6 @@ import os
 from flask import Flask, request, jsonify
 from google import genai
 from google.genai import types
-model="gemini-1.5-flash",
 
 app = Flask(__name__)
 
@@ -114,9 +113,9 @@ def query():
             )
         )
         
-        # Stability fix: swapping to the high-availability model
+        # Absolute path fix applied here:
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="models/gemini-1.5-flash",
             contents=user_prompt,
             config=config
         )
