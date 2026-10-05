@@ -1,9 +1,10 @@
 import os
 from flask import Flask, request, jsonify
+from google import genai
+from google.genai import types
 
 app = Flask(__name__)
 
-# Inline HTML layout guaranteeing instant rendering on Render
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -102,21 +103,21 @@ def query():
         if not api_key:
             return jsonify({"error": "GEMINI_API_KEY environment variable missing."}), 500
 
-        import google.generativeai as genai
-        genai.configure(api_key=api_key)
+        client = genai.Client(api_key=api_key)
         
-        system_instruction = (
-            "You are Nova-AI Powerhouse, a super-intelligent municipal resource allocation engine. "
-            "You provide executive, policy-grade fiscal calculations and cost-benefit analysis for municipal leaders, "
-            "focusing on housing, taxpayer savings, and federal grant alignment."
+        config = types.GenerateContentConfig(
+            system_instruction=(
+                "You are Nova-AI Powerhouse, a super-intelligent municipal resource allocation engine. "
+                "You provide executive, policy-grade fiscal calculations and cost-benefit analysis for municipal leaders, "
+                "focusing on housing, taxpayer savings, and federal grant alignment."
+            )
         )
         
-        model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
-            system_instruction=system_instruction
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=user_prompt,
+            config=config
         )
-        
-        response = model.generate_content(user_prompt)
         return jsonify({"response": response.text})
 
     except Exception as e:
