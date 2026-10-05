@@ -102,6 +102,8 @@ def query():
         api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
             return jsonify({"error": "GEMINI_API_KEY environment variable missing."}), 500
+# NEW LINE:
+model="gemini-3.8-flash",
 
         client = genai.Client(api_key=api_key)
         
