@@ -113,8 +113,9 @@ def query():
             )
         )
         
+        # Updated to active model endpoint
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.8-flash",
             contents=user_prompt,
             config=config
         )
@@ -125,4 +126,3 @@ def query():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
-
