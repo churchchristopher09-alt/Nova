@@ -1,55 +1,126 @@
 import os
-from flask import Flask, render_template, request, jsonify
-from google import genai
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Initialize Google GenAI Client using the GEMINI_API_KEY environment variable
-api_key = os.environ.get("GEMINI_API_KEY")
-client = genai.Client(api_key=api_key) if api_key else None
+# Inline HTML layout guaranteeing instant rendering on Render
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova-AI Powerhouse</title>
+    <style>
+        body { background-color: #0b0f19; color: #00ff9d; font-family: 'Courier New', monospace; padding: 20px; margin: 0; }
+        .header { text-align: center; border-bottom: 2px solid #00ff9d; padding-bottom: 10px; margin-bottom: 20px; }
+        .stats-grid { display: flex; justify-content: space-around; background: #111827; padding: 15px; border-radius: 8px; border: 1px solid #1f2937; margin-bottom: 20px; }
+        .stat-box { text-align: center; }
+        .stat-val { font-size: 1.4rem; font-weight: bold; color: #ffffff; }
+        .console { background: #030712; border: 1px solid #1f2937; border-radius: 8px; padding: 15px; height: 350px; overflow-y: auto; white-space: pre-wrap; color: #a7f3d0; margin-bottom: 15px; }
+        .input-group { display: flex; gap: 10px; }
+        input { flex: 1; background: #111827; border: 1px solid #374151; color: #ffffff; padding: 12px; border-radius: 6px; font-family: monospace; }
+        button { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span style="background: #065f46; color: #34d399; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">AI PREDICTIVE CORE ACTIVE</span>
+        <h1 style="margin: 10px 0 5px 0;">Nova-AI Powerhouse</h1>
+        <div style="color: #9ca3af; font-size: 0.85rem;">SUPER INTELLIGENCE CORE MUNICIPAL ALLOCATION ENGINE</div>
+    </div>
 
-MASTER_SYSTEM_DIRECTIVE = """
-You are Nova-AI Powerhouse, a Super Intelligence Core Municipal Allocation Engine.
+    <div class="stats-grid">
+        <div class="stat-box"><div style="font-size:0.75rem; color:#9ca3af;">HOUSING AVAILABLE</div><div class="stat-val">1,248</div></div>
+        <div class="stat-box"><div style="font-size:0.75rem; color:#9ca3af;">TAXPAYER SAVINGS</div><div class="stat-val">$350M+</div></div>
+        <div class="stat-box"><div style="font-size:0.75rem; color:#9ca3af;">EFFICIENCY RATE</div><div class="stat-val">99.4%</div></div>
+    </div>
 
-You specialize in solving municipal inefficiencies and optimizing public safety net systems:
-1. Real Estate & Property Recovery (Housing chronic homeless into vacant municipal inventory)
-2. Tax Relief & Fiscal Policy (Taxpayer cost-offset analytics)
-3. Banking & Financial Institutions (HUD/CDBG grant tracking and allocation)
-4. Healthcare & Hospitals (Uncompensated ER diversion savings)
-5. Public Education & Schools (McKinney-Vento housing support)
-6. Justice & Safety (Recidivism reduction and jail bed diversion)
-7. Workforce Development (Local economic re-entry and labor reintegration)
+    <div id="console" class="console">Nova-AI Core: Intelligence system active. Select a jurisdiction or ask any question regarding municipal telemetry.</div>
 
-Maintain an authoritative, sharp, policy-grade, and direct response tone. Perform exact mathematical projections on cost savings when asked.
+    <div class="input-group">
+        <input type="text" id="queryInput" placeholder="Enter query or directive..." onkeydown="if(event.key==='Enter') sendQuery()">
+        <button onclick="sendQuery()">Execute</button>
+    </div>
+
+    <script>
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const cleanText = text.replace(/[*#$`\\_]/g, '');
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.rate = 0.95;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        async function sendQuery() {
+            const input = document.getElementById("queryInput");
+            const consoleBox = document.getElementById("console");
+            const prompt = input.value.trim();
+            if (!prompt) return;
+
+            consoleBox.innerText += `\\n\\nUser: ${prompt}`;
+            input.value = "";
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+
+            try {
+                const response = await fetch("/api/query", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: prompt })
+                });
+                const data = await response.json();
+                if (data.error) {
+                    consoleBox.innerText += `\\n\\nNova-AI Core: ${data.error}`;
+                } else {
+                    consoleBox.innerText += `\\n\\nNova-AI Core: ${data.response}`;
+                    speakText(data.response);
+                }
+            } catch (err) {
+                consoleBox.innerText += `\\n\\nNova-AI Core: Connection error encountered.`;
+            }
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
 """
 
 @app.route("/")
-def index():
-    return render_template("index.html")
+def home():
+    return HTML_TEMPLATE
 
 @app.route("/api/query", methods=["POST"])
 def query():
-    if not client:
-        return jsonify({
-            "error": "GEMINI_API_KEY environment variable is missing on Render. Please configure it under Service Settings."
-        }), 500
-
-    data = request.get_json() or {}
-    user_prompt = data.get("prompt", "")
-
-    if not user_prompt:
-        return jsonify({"error": "No query or directive provided."}), 400
-
     try:
-        # Calls the updated gemini-3.8-flash model
-        response = client.models.generate_content(
-            model="gemini-3.8-flash",
-            contents=f"{MASTER_SYSTEM_DIRECTIVE}\n\nUser Query: {user_prompt}"
+        data = request.get_json()
+        user_prompt = data.get("prompt", "")
+        
+        api_key = os.environ.get("GEMINI_API_KEY")
+        if not api_key:
+            return jsonify({"error": "GEMINI_API_KEY environment variable missing."}), 500
+
+        import google.generativeai as genai
+        genai.configure(api_key=api_key)
+        
+        system_instruction = (
+            "You are Nova-AI Powerhouse, a super-intelligent municipal resource allocation engine. "
+            "You provide executive, policy-grade fiscal calculations and cost-benefit analysis for municipal leaders, "
+            "focusing on housing, taxpayer savings, and federal grant alignment."
         )
+        
+        model = genai.GenerativeModel(
+            model_name="gemini-1.5-flash",
+            system_instruction=system_instruction
+        )
+        
+        response = model.generate_content(user_prompt)
         return jsonify({"response": response.text})
+
     except Exception as e:
-        return jsonify({"error": f"Nova-AI Telemetry Alert: Exception caught during core LLM processing: {str(e)}"}), 500
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=10000)
