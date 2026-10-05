@@ -1,4 +1,5 @@
 import os
+import time
 from flask import Flask, request, jsonify
 from google import genai
 from google.genai import types
@@ -38,7 +39,7 @@ HTML_TEMPLATE = """
         <div class="stat-box"><div style="font-size:0.75rem; color:#9ca3af;">EFFICIENCY RATE</div><div class="stat-val">99.4%</div></div>
     </div>
 
-    <div id="console" class="console">Nova-AI Core: Intelligence system active. Select a jurisdiction or ask any question regarding municipal telemetry.</div>
+    <div id="console" class="console">Nova-AI Core: Intelligence system active. Ask any question or issue any directive.</div>
 
     <div class="input-group">
         <input type="text" id="queryInput" placeholder="Enter query or directive..." onkeydown="if(event.key==='Enter') sendQuery()">
@@ -107,19 +108,32 @@ def query():
         
         config = types.GenerateContentConfig(
             system_instruction=(
-                "You are Nova-AI Powerhouse, a super-intelligent municipal resource allocation engine. "
-                "You provide executive, policy-grade fiscal calculations and cost-benefit analysis for municipal leaders, "
-                "focusing on housing, taxpayer savings, and federal grant alignment."
+                "You are Nova-AI, an intelligent assistant and municipal predictive core. "
+                "Answer all user inquiries accurately, clearly, and concisely, whether they pertain to general questions, "
+                "complex topics, or municipal resource allocation and policy analysis."
             )
         )
         
-        # Updated to active model endpoint
-        response = client.models.generate_content(
-            model="gemini-3.8-flash",
-            contents=user_prompt,
-            config=config
-        )
-        return jsonify({"response": response.text})
+        # Retry loop for handling temporary 503 high demand periods
+        models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash"]
+        
+        for model_name in models_to_try:
+            for attempt in range(2):
+                try:
+                    response = client.models.generate_content(
+                        model=model_name,
+                        contents=user_prompt,
+                        config=config
+                    )
+                    return jsonify({"response": response.text})
+                except Exception as inner_e:
+                    if "503" in str(inner_e) or "UNAVAILABLE" in str(inner_e):
+                        time.sleep(1)  # Brief pause before retrying
+                        continue
+                    else:
+                        raise inner_e
+
+        return jsonify({"error": "Google AI servers are currently experiencing high traffic. Please tap Execute again in a moment."}), 503
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
